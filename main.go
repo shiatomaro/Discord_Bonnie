@@ -17,6 +17,9 @@ func main() {
 		log.Fatal("No Token Provided or Required Variables missing. set DISCORD_BOT_TOKEN in environment or OPENAI_API_KEY")
 	}
 
+	// Creating new OpenAI client
+	openAIClient := openai.NewClient(apiKey)
+
 	// Creating new session
 	bot, err := discordgo.New("Bot " + token)
 	if err != nil {
@@ -48,7 +51,7 @@ func messageCreateHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		userMessage := m.Content[6:]
 
 		// Query OpenAI
-		response, err := queryChatGPT(userMessage)
+		response, err := queryChatGPT(s, userMessage)
 		if err != nil {
 			log.Printf("Error querying OpenAI: %v", err)
 			s.ChannelMessageSend(m.ChannelID, "Hello, Sorry I couldn't process your request")
@@ -61,7 +64,7 @@ func messageCreateHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 // Query OpenAI API with the user's message
-func queryChatGPT(message string) (string, error) {
+func queryChatGPT(s *discordgo.Session, message string) (string, error) {
 	apiKey := os.Getenv("OPENAI_API_KEY")
 	client := openai.NewClient(apiKey)
 
